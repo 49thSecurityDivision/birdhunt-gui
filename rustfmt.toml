@@ -1,0 +1,3 @@
+wrap_comments = true
+hard_tabs = true
+newline_style = "Unix"
