@@ -1,6 +1,6 @@
 use uing::{
 	FlexDirection, TextProps, UiContext, WidgetDim, WidgetKey, WidgetLayout, WidgetReaction,
-	WidgetSize, components::ButtonColors, wk,
+	WidgetSize, components::ButtonColors, glam::Vec4, wk,
 };
 
 pub struct Tab<'a, T: Eq + Copy> {
@@ -9,10 +9,16 @@ pub struct Tab<'a, T: Eq + Copy> {
 }
 
 pub struct TabBar<'a, T: Eq + Copy> {
+	/// The list of tabs in this tab bar.
 	pub tabs: &'a [Tab<'a, T>],
+	/// The button colors for the active tab.
 	pub active_colors: ButtonColors,
+	/// The button colors for the inactive tabs.
 	pub inactive_colors: ButtonColors,
+	/// The ID to the active tab. This will be updated if the tab is switched.
 	pub active: &'a mut T,
+	/// Text props for the labels on the tabs.
+	pub text_props: &'a TextProps<'a>,
 }
 impl<'a, T: Eq + Copy> TabBar<'a, T> {
 	pub fn build(self, key: WidgetKey, ui: &mut UiContext) -> WidgetReaction {
@@ -24,7 +30,7 @@ impl<'a, T: Eq + Copy> TabBar<'a, T> {
 			})
 			.layout(WidgetLayout::Flex {
 				direction: FlexDirection::Horizontal,
-				gap: 5.0,
+				gap: 1.0,
 				wrap: false,
 			})
 			.build();
@@ -38,11 +44,15 @@ impl<'a, T: Eq + Copy> TabBar<'a, T> {
 			let tab_btn = ui
 				.btn_box(wk!([key], idx), colors)
 				.size(WidgetSize::hug_round())
+				.pad_all(5.0)
+				.border(
+					0,
+					Vec4::from_array([0.0; 4]),
+					Vec4::new(12.0, 0.0, 0.0, 12.0),
+				)
 				.build();
 
-			let tab_lbl = ui
-				.text(wk!([key], idx), tab.label, &TextProps::default())
-				.build();
+			let tab_lbl = ui.text(wk!([key], idx), tab.label, self.text_props).build();
 			ui.add_child(tab_btn, tab_lbl);
 
 			if tab_btn.l_clicked() {

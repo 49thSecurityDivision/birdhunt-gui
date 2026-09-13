@@ -4,7 +4,7 @@ mod theme;
 mod widgets;
 
 use uing::{
-	FlexDirection, UiContext, WidgetLayout, WidgetReaction,
+	FlexDirection, TextProps, UiContext, WidgetLayout, WidgetReaction,
 	components::ButtonColors,
 	windowing::winit::{WinitPlatformInteractions, WinitUingApp},
 	wk,
@@ -57,6 +57,8 @@ fn render() -> impl for<'a> FnMut(&mut UiContext, RenderInfo<'a>) -> WidgetReact
 		tab: BirdHuntTab::Home,
 	};
 
+	let default_text_props = TextProps::default_sans(14.0);
+
 	move |ui, render_info| {
 		let root = ui
 			.build_widget(wk!())
@@ -85,16 +87,17 @@ fn render() -> impl for<'a> FnMut(&mut UiContext, RenderInfo<'a>) -> WidgetReact
 				},
 			],
 			active_colors: ButtonColors {
-				regular: (theme::MANTLE, 0),
-				hovered: (theme::MANTLE, 0),
-				pressed: (theme::MANTLE, 0),
+				regular: (theme::BASE, 0),
+				hovered: (theme::BASE, 0),
+				pressed: (theme::BASE, 0),
 			},
 			inactive_colors: ButtonColors {
-				regular: (theme::BASE, 0),
-				hovered: (theme::CRUST, 0),
-				pressed: (theme::MANTLE, 0),
+				regular: (theme::CRUST, 0),
+				hovered: (theme::MANTLE, 0),
+				pressed: (theme::BASE, 0),
 			},
 			active: &mut state.tab,
+			text_props: &default_text_props,
 		}
 		.build(wk!(), ui);
 		ui.add_child(root, tab_bar);
