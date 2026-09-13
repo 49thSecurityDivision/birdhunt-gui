@@ -3,6 +3,7 @@ use uing::{
 };
 use winit::event::KeyEvent;
 
+#[allow(dead_code)]
 pub struct RenderInfo<'a> {
 	pub renderer: &'a mut Renderer,
 	pub viewport: Vec2,
