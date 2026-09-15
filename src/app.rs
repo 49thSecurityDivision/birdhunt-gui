@@ -1,7 +1,8 @@
-use uing::{
-	UiContext, WidgetBuilder, WidgetReaction, frienderer::Renderer, glam::Vec2, windowing::UingApp,
+use {
+	crate::state::State,
+	uing::{UiContext, WidgetBuilder, frienderer::Renderer, glam::Vec2, windowing::UingApp},
+	winit::event::KeyEvent,
 };
-use winit::event::KeyEvent;
 
 #[allow(dead_code)]
 pub struct RenderInfo<'a> {
@@ -10,17 +11,11 @@ pub struct RenderInfo<'a> {
 	pub scale_factor: f32,
 }
 
-pub struct App<R>
-where
-	for<'a> R: FnMut(&mut UiContext, RenderInfo<'a>) -> WidgetReaction,
-{
+pub struct App {
 	pub ui_ctx: UiContext,
-	pub render_fn: R,
+	pub state: State,
 }
-impl<R> UingApp<KeyEvent> for App<R>
-where
-	for<'a> R: FnMut(&mut UiContext, RenderInfo<'a>) -> WidgetReaction,
-{
+impl UingApp<KeyEvent> for App {
 	fn ui_mut(&mut self) -> &mut UiContext {
 		&mut self.ui_ctx
 	}
@@ -30,7 +25,7 @@ where
 	}
 
 	fn on_redraw(&mut self, renderer: &mut Renderer, viewport: Vec2, scale_factor: f32) {
-		let App { ui_ctx, render_fn } = self;
+		let App { ui_ctx, state } = self;
 
 		ui_ctx.start_frame();
 		ui_ctx.resize(viewport);
@@ -41,7 +36,7 @@ where
 				viewport,
 				scale_factor,
 			};
-			(render_fn)(ui, render_info)
+			crate::ui::render(ui, render_info, state)
 		});
 		ui_ctx.override_styles(|_widget: WidgetBuilder| {});
 

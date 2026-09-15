@@ -6,18 +6,26 @@ pkgs.mkShell {
   name = "birdhunt-devshell";
 
   packages = with pkgs; [
+    pkg-config
+
+    # uing deps
     wayland
     fontconfig
-    pkg-config
+
+    # ssh2 deps
+    openssl
   ];
 
-  # winit needs these
   LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (
     with pkgs;
     [
+      # winit deps
       wayland
       libxkbcommon
       libGL
+
+      # ssh2 deps
+      libssh2
     ]
   );
 }
