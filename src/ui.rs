@@ -17,7 +17,6 @@ pub type RenderFn = fn(&mut UiContext, RenderInfo, &mut State) -> WidgetReaction
 
 /// Render the Birdhunt app.
 pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) -> WidgetReaction {
-	let default_text_props = TextProps::default_sans(14.0);
 	let ui_state = &mut state.ui_state;
 
 	let root = ui
@@ -29,6 +28,7 @@ pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) ->
 			gap: 5.0,
 			wrap: true,
 		})
+		.center()
 		.build();
 
 	let tab_bar = widgets::TabBar {
@@ -57,7 +57,7 @@ pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) ->
 			pressed: (theme::BASE, 0),
 		},
 		active: &mut ui_state.active_tab,
-		text_props: &default_text_props,
+		text_props: &ui_state.default_text_props,
 	}
 	.build(wk!(), ui);
 	ui.add_child(root, tab_bar);

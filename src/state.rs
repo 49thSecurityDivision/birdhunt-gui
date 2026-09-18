@@ -1,4 +1,4 @@
-use ecs::World;
+use {ecs::World, uing::TextProps};
 
 pub struct HostsWorldMarker;
 
@@ -12,6 +12,7 @@ impl State {
 		Self {
 			ui_state: UiState {
 				active_tab: BirdHuntTab::Home,
+				default_text_props: TextProps::default_sans(14.0),
 			},
 			hosts: World::new(),
 		}
@@ -20,6 +21,7 @@ impl State {
 
 pub struct UiState {
 	pub active_tab: BirdHuntTab,
+	pub default_text_props: TextProps<'static>,
 }
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]

@@ -6,5 +6,5 @@ edition = "2024"
 [dependencies]
 ecs = { git = "https://codeberg.org/splinteredShadows/kampaku.git", version = "0.1.0" }
 ssh2 = "0.9"
-uing = "0.1"
-winit = "0.30"
+uing = "0.2"
+winit = "0"
