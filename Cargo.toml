@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bevy_ecs = "0.19.1"
-ssh2 = "0.9.6"
-uing = "0.1.1"
-winit = "0.30.13"
+ecs = { git = "https://codeberg.org/splinteredShadows/kampaku.git", version = "0.1.0" }
+ssh2 = "0.9"
+uing = "0.1"
+winit = "0.30"

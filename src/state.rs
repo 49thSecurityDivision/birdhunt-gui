@@ -1,8 +1,11 @@
-use bevy_ecs::world::World;
+use ecs::World;
 
+pub struct HostsWorldMarker;
+
+/// Birdhunt app state.
 pub struct State {
 	pub ui_state: UiState,
-	pub hosts: World,
+	pub hosts: World<HostsWorldMarker>,
 }
 impl State {
 	pub fn new() -> Self {

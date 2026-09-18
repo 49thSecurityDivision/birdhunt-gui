@@ -13,6 +13,9 @@ use {
 	},
 };
 
+pub type RenderFn = fn(&mut UiContext, RenderInfo, &mut State) -> WidgetReaction;
+
+/// Render the Birdhunt app.
 pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) -> WidgetReaction {
 	let default_text_props = TextProps::default_sans(14.0);
 	let ui_state = &mut state.ui_state;
@@ -59,12 +62,12 @@ pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) ->
 	.build(wk!(), ui);
 	ui.add_child(root, tab_bar);
 
-	let page_to_render = match ui_state.active_tab {
+	let page_to_render: RenderFn = match ui_state.active_tab {
 		BirdHuntTab::Home => pages::home::render,
 		BirdHuntTab::Scripts => pages::scripts::render,
 		BirdHuntTab::Hosts => pages::hosts::render,
 	};
-	let page = (page_to_render)(ui, render_info);
+	let page = (page_to_render)(ui, render_info, state);
 	ui.add_child(root, page);
 
 	root
