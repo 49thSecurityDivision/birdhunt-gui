@@ -15,6 +15,8 @@ mod state;
 mod ui;
 
 fn main() {
+	dioxus_devtools::connect_subsecond();
+
 	let event_loop = EventLoop::new().unwrap();
 	event_loop.set_control_flow(ControlFlow::Wait);
 

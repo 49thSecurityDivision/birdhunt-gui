@@ -1,28 +1,42 @@
+pub mod theme;
+
 mod pages;
-mod theme;
 mod widgets;
 
 use {
 	crate::{
 		app::RenderInfo,
 		state::{BirdHuntTab, State},
+		ui::widgets::Popup,
 	},
 	uing::{
-		FlexDirection, TextProps, UiContext, WidgetLayout, WidgetReaction,
+		FlexDirection, UiContext, WidgetKey, WidgetLayout, WidgetReaction,
 		components::ButtonColors, wk,
 	},
 };
 
 pub type RenderFn = fn(&mut UiContext, RenderInfo, &mut State) -> WidgetReaction;
 
+#[inline(always)]
+fn window_key() -> WidgetKey {
+	wk!()
+}
+
 /// Render the Birdhunt app.
 pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) -> WidgetReaction {
 	let ui_state = &mut state.ui_state;
 
+	let window = ui
+		.build_widget(window_key())
+		.size_fill()
+		.layout(WidgetLayout::Stacked)
+		.build();
+	ui_state.window = Some(window.id());
+
 	let root = ui
 		.build_widget(wk!())
 		.size_fill()
-		.color(theme::BASE)
+		.color(state.theme.content_background_color)
 		.layout(WidgetLayout::Flex {
 			direction: FlexDirection::Vertical,
 			gap: 5.0,
@@ -30,6 +44,7 @@ pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) ->
 		})
 		.center()
 		.build();
+	ui.add_child(window, root);
 
 	let tab_bar = widgets::TabBar {
 		tabs: &[
@@ -57,9 +72,9 @@ pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) ->
 			pressed: (theme::BASE, 0),
 		},
 		active: &mut ui_state.active_tab,
-		text_props: &ui_state.default_text_props,
+		text_props: &state.theme.body_text,
 	}
-	.build(wk!(), ui);
+	.build(wk!(), ui, &state.theme);
 	ui.add_child(root, tab_bar);
 
 	let page_to_render: RenderFn = match ui_state.active_tab {
@@ -70,5 +85,25 @@ pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) ->
 	let page = (page_to_render)(ui, render_info, state);
 	ui.add_child(root, page);
 
-	root
+	if state.default_password.is_empty() || state.default_username.is_empty() {
+		let popup = Popup {
+			title: "Initial Setup",
+			dismissable: false,
+			show: &mut true,
+		}
+		.build(wk!(), ui, state);
+
+		let explanation = ui
+			.text(
+				wk!(),
+				"Welcome to BirdHunt! Please enter default credentials to manage new servers with.",
+				&state.theme.body_text,
+			)
+			.size_fill()
+			.top_center()
+			.build();
+		ui.add_child(popup, explanation);
+	}
+
+	window
 }
