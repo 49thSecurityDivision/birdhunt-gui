@@ -1,6 +1,6 @@
 use uing::{
-	FlexDirection, TextProps, UiContext, WidgetDim, WidgetKey, WidgetLayout, WidgetPadding,
-	WidgetReaction, WidgetSize,
+	Anchor, FlexDirection, TextInputState, TextProps, UiContext, WidgetDim, WidgetKey,
+	WidgetLayout, WidgetPadding, WidgetReaction, WidgetSize,
 	components::ButtonColors,
 	glam::{Vec2, Vec4},
 	wk,
@@ -80,6 +80,81 @@ impl<'a, T: Eq + Copy> TabBar<'a, T> {
 		}
 
 		root
+	}
+}
+
+pub struct TextInput<'a> {
+	pub placeholder: &'a str,
+	pub width: WidgetDim,
+	pub password: bool,
+}
+impl<'a> TextInput<'a> {
+	pub fn build<'ui>(
+		self,
+		key: WidgetKey,
+		ui: &'ui mut UiContext,
+		state: &State,
+	) -> (WidgetReaction, &'ui TextInputState) {
+		(
+			ui.text_input(
+				key,
+				|container| {
+					let container = container
+						.border_width(Vec4::ONE)
+						.border_color(state.theme.border_color)
+						.border_radius(Vec4::splat(4.0))
+						.pad_hv(3.0, 0.0)
+						.size_wh(
+							self.width,
+							WidgetDim::Fixed(state.theme.body_single_line_text.font_size + 5.0),
+						);
+
+					if self.password {
+						container.passwd_input()
+					} else {
+						container
+					}
+				},
+				&state.theme.body_single_line_text,
+				self.placeholder,
+				state.theme.subtext_color,
+			),
+			ui.get_text_input(key.hash()).unwrap(),
+		)
+	}
+}
+
+#[derive(Default)]
+pub struct ColorButton<'a> {
+	pub label: &'a str,
+	pub width: WidgetDim,
+	pub height: WidgetDim,
+	pub padding: f32,
+	pub anchor: Anchor,
+}
+impl<'a> ColorButton<'a> {
+	pub fn build(self, key: WidgetKey, ui: &mut UiContext, state: &State) -> WidgetReaction {
+		let btn = ui
+			.btn_box(
+				key,
+				ButtonColors {
+					regular: (state.theme.accent - 0x30, 0),
+					hovered: (state.theme.accent - 0x10, 0),
+					pressed: (state.theme.accent, 0),
+				},
+			)
+			.pad_all(self.padding)
+			.anchorigin(self.anchor)
+			.size_wh(self.width, self.height)
+			.border_radius(Vec4::splat(6.0))
+			.build();
+		let lbl = ui
+			.text(wk!([key]), self.label, &state.theme.body_text)
+			.center()
+			.build();
+		ui.add_child(btn, lbl);
+
+		btn
 	}
 }
 

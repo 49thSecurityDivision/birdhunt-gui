@@ -7,10 +7,10 @@ use {
 	crate::{
 		app::RenderInfo,
 		state::{BirdHuntTab, State},
-		ui::widgets::Popup,
+		ui::widgets::{ColorButton, Popup, TextInput},
 	},
 	uing::{
-		FlexDirection, UiContext, WidgetKey, WidgetLayout, WidgetReaction,
+		Anchor, FlexDirection, UiContext, WidgetDim, WidgetKey, WidgetLayout, WidgetReaction,
 		components::ButtonColors, wk,
 	},
 };
@@ -99,10 +99,45 @@ pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) ->
 				"Welcome to BirdHunt! Please enter default credentials to manage new servers with.",
 				&state.theme.body_text,
 			)
-			.size_fill()
+			.size_wh(WidgetDim::fill(), WidgetDim::hug())
 			.top_center()
 			.build();
 		ui.add_child(popup, explanation);
+
+		let form = ui
+			.build_widget(wk!())
+			.pad_hv(0.0, 15.0)
+			.flex_col(15.0)
+			.top_center()
+			.size_wh(WidgetDim::Fixed(300.0), WidgetDim::hug())
+			.build();
+		ui.add_child(popup, form);
+
+		let (default_username, _) = TextInput {
+			placeholder: "Username",
+			width: WidgetDim::fill(),
+			password: false,
+		}
+		.build(wk!(), ui, state);
+		ui.add_child(form, default_username);
+
+		let (default_password, _) = TextInput {
+			placeholder: "Password",
+			width: WidgetDim::fill(),
+			password: true,
+		}
+		.build(wk!(), ui, state);
+		ui.add_child(form, default_password);
+
+		let save = ColorButton {
+			label: "Save",
+			width: WidgetDim::Fixed(200.0),
+			height: WidgetDim::hug(),
+			padding: 5.0,
+			anchor: Anchor::TOP_CENTER,
+		}
+		.build(wk!(), ui, state);
+		ui.add_child(form, save);
 	}
 
 	window
