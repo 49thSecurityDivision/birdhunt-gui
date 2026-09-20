@@ -1,14 +1,13 @@
-use uing::{
-	Anchor, FlexDirection, TextInputState, TextProps, UiContext, WidgetDim, WidgetKey,
-	WidgetLayout, WidgetPadding, WidgetReaction, WidgetSize,
-	components::ButtonColors,
-	glam::{Vec2, Vec4},
-	wk,
-};
-
-use crate::{
-	state::{State, Theme},
-	ui::window_key,
+use {
+	crate::state::{State, Theme},
+	std::cell::RefCell,
+	uing::{
+		Anchor, FlexDirection, TextProps, UiContext, WidgetBuilder, WidgetDim, WidgetKey,
+		WidgetKeyHash, WidgetLayout, WidgetPadding, WidgetReaction, WidgetSize,
+		components::ButtonColors,
+		glam::{Vec2, Vec4},
+		wk,
+	},
 };
 
 pub struct Tab<'a, T: Eq + Copy> {
@@ -94,7 +93,7 @@ impl<'a> TextInput<'a> {
 		key: WidgetKey,
 		ui: &'ui mut UiContext,
 		state: &State,
-	) -> (WidgetReaction, &'ui TextInputState) {
+	) -> (WidgetReaction, WidgetKeyHash) {
 		(
 			ui.text_input(
 				key,
@@ -119,7 +118,7 @@ impl<'a> TextInput<'a> {
 				self.placeholder,
 				state.theme.subtext_color,
 			),
-			ui.get_text_input(key.hash()).unwrap(),
+			key.hash(),
 		)
 	}
 }
@@ -155,6 +154,60 @@ impl<'a> ColorButton<'a> {
 		ui.add_child(btn, lbl);
 
 		btn
+	}
+}
+
+pub struct Table<'a> {
+	pub column_names: &'a [&'a str],
+	pub width: WidgetDim,
+	pub height: WidgetDim,
+}
+impl<'a> Table<'a> {
+	pub fn build(self, key: WidgetKey, ui: &mut UiContext, theme: &Theme) -> BuiltTable {
+		let root = ui
+			.build_widget(key)
+			.flex_row(10.0)
+			.size_wh(self.width, self.height)
+			.border_width(Vec4::splat(1.0))
+			.border_radius(Vec4::splat(8.0))
+			.border_color(theme.border_color)
+			.build();
+
+		let mut columns = Vec::new();
+
+		for (idx, column_name) in self.column_names.iter().enumerate() {
+			let column = ui
+				.build_widget(wk!([key], idx))
+				.flex_col(5.0)
+				.size_wh(WidgetDim::fill(), WidgetDim::hug())
+				.build();
+			ui.add_child(root, column);
+			columns.push(column);
+
+			let lbl = ui
+				.text(wk!([key], idx), column_name, &theme.body_text)
+				.size_wh(WidgetDim::fill(), WidgetDim::hug())
+				.padding(WidgetPadding::trbl(0.0, 0.0, 10.0, 0.0))
+				.build();
+			ui.add_child(column, lbl);
+		}
+
+		BuiltTable {
+			table: root,
+			columns,
+		}
+	}
+}
+
+pub struct BuiltTable {
+	pub table: WidgetReaction,
+	columns: Vec<WidgetReaction>,
+}
+impl BuiltTable {
+	pub fn add_row(&self, ui: &mut UiContext, values: &[WidgetReaction]) {
+		for (column, entry) in self.columns.iter().zip(values) {
+			ui.add_child(*column, *entry);
+		}
 	}
 }
 

@@ -113,7 +113,7 @@ pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) ->
 			.build();
 		ui.add_child(popup, form);
 
-		let (default_username, _) = TextInput {
+		let (default_username, default_username_key) = TextInput {
 			placeholder: "Username",
 			width: WidgetDim::fill(),
 			password: false,
@@ -121,7 +121,7 @@ pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) ->
 		.build(wk!(), ui, state);
 		ui.add_child(form, default_username);
 
-		let (default_password, _) = TextInput {
+		let (default_password, default_password_key) = TextInput {
 			placeholder: "Password",
 			width: WidgetDim::fill(),
 			password: true,
@@ -138,6 +138,17 @@ pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) ->
 		}
 		.build(wk!(), ui, state);
 		ui.add_child(form, save);
+
+		if save.l_clicked() {
+			state.default_password = ui
+				.get_text_input_content(default_password_key)
+				.unwrap()
+				.to_string();
+			state.default_username = ui
+				.get_text_input_content(default_username_key)
+				.unwrap()
+				.to_string();
+		}
 	}
 
 	window

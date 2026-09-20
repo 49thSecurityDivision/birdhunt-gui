@@ -15,6 +15,7 @@ mod state;
 mod ui;
 
 fn main() {
+	unsafe { crux::init() };
 	dioxus_devtools::connect_subsecond();
 
 	let event_loop = EventLoop::new().unwrap();

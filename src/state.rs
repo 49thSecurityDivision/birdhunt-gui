@@ -4,6 +4,8 @@ use {
 	uing::{TextProps, WidgetId},
 };
 
+pub mod host;
+
 pub struct HostsWorldMarker;
 
 /// Birdhunt app state.

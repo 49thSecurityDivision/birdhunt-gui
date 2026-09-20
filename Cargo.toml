@@ -9,6 +9,10 @@ ssh2 = "0.9"
 uing = "0.2"
 winit = "0"
 
+[dependencies.crux]
+path = "../../../kampaku/crux"
+#git = "https://codeberg.org/splinteredShadows/kampaku.git"
+
 [dependencies.ecs]
 path = "../../../kampaku/ecs"
 #git = "https://codeberg.org/splinteredShadows/kampaku.git"
