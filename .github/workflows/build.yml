@@ -7,6 +7,10 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v6
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install libwayland-dev fontconfig openssl libssh2-1-dev libxkbcommon-dev
       - name: Build in release mode
         run: cargo +nightly b -r
       - name: Create release
