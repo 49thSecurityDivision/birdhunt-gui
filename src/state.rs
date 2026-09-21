@@ -1,7 +1,7 @@
 use {
 	crate::ui::theme,
 	ecs::World,
-	uing::{TextProps, WidgetId},
+	uing::{TextProps, WidgetId, parley::FontWeight},
 };
 
 pub mod host;
@@ -27,6 +27,10 @@ impl State {
 				title_text: TextProps::default_sans(40.0).color(theme::TEXT),
 				body_text: TextProps::default_sans(16.0).multiline().color(theme::TEXT),
 				body_single_line_text: TextProps::default_sans(16.0).color(theme::TEXT),
+				bold_text: TextProps::default_sans(16.0)
+					.multiline()
+					.color(theme::TEXT)
+					.font_weight(FontWeight::BLACK),
 				monospace_text: TextProps::default_mono(16.0)
 					.line_height(1.0)
 					.color(theme::TEXT),
@@ -66,6 +70,7 @@ pub enum BirdHuntTab {
 pub struct Theme {
 	pub title_text: TextProps<'static>,
 	pub body_text: TextProps<'static>,
+	pub bold_text: TextProps<'static>,
 	pub body_single_line_text: TextProps<'static>,
 	pub monospace_text: TextProps<'static>,
 	pub subtext_color: u32,

@@ -5,7 +5,10 @@ use {
 			State, Theme,
 			host::{ConnectionInfo, Enabled, HostName},
 		},
-		ui::{theme, widgets::Table},
+		ui::{
+			theme,
+			widgets::{ColorButton, Table, TextInput},
+		},
 	},
 	ecs::query::Select,
 	uing::{UiContext, WidgetDim, WidgetReaction, glam::Vec4, wk},
@@ -19,6 +22,9 @@ pub fn render(ui: &mut UiContext, _render_info: RenderInfo, state: &mut State) -
 		.flex_col(5.0)
 		.pad_all(5.0)
 		.build();
+
+	let hosts_lbl = ui.text(wk!(), "Hosts", &state.theme.title_text).build();
+	ui.add_child(root, hosts_lbl);
 
 	let query = state
 		.hosts
@@ -37,62 +43,63 @@ pub fn render(ui: &mut UiContext, _render_info: RenderInfo, state: &mut State) -
 			.text(wk!(entity.as_raw()), &hostname.0, &state.theme.body_text)
 			.build();
 		let ip = ui
-			.text(wk!(entity.as_raw()), &conn_info.ip, &state.theme.body_text)
+			.text(
+				wk!(entity.as_raw()),
+				&conn_info.ip.to_string(),
+				&state.theme.body_text,
+			)
 			.build();
 
 		table.add_row(ui, &[hostname, ip]);
 	}
 
-	root
-}
+	let add_host_lbl = ui.text(wk!(), "Add Host", &state.theme.title_text).build();
+	ui.add_child(root, add_host_lbl);
 
-fn add_host_form(ui: &mut UiContext, theme: &Theme) -> WidgetReaction {
-	let root = ui.build_widget(wk!()).size_fill().flex_col(5.0).build();
+	let (ip_input, ip_input_key) = TextInput {
+		placeholder: "IP Address",
+		width: WidgetDim::Fixed(300.0),
+		password: false,
+	}
+	.build(wk!(), ui, state);
+	ui.add_child(root, ip_input);
 
-	let hostname_input = wk!();
-	let hostname_input_widget = ui.text_input(
-		hostname_input,
-		|container| {
-			container
-				.border_width(Vec4::ONE)
-				.border_color(theme::OVERLAY0)
-				.size_wh(WidgetDim::Fixed(100.0), WidgetDim::Fixed(20.0))
-		},
-		&theme.body_text,
-		"Host Name",
-		theme::SUBTEXT0,
-	);
-	ui.add_child(root, hostname_input_widget);
+	let (port_input, port_input_key) = TextInput {
+		placeholder: "SSH Port",
+		width: WidgetDim::Fixed(300.0),
+		password: false,
+	}
+	.build(wk!(), ui, state);
+	ui.add_child(root, port_input);
 
-	let ip_input = wk!();
-	let ip_input_widget = ui.text_input(
-		ip_input,
-		|container| {
-			container
-				.border_width(Vec4::ONE)
-				.border_color(theme::OVERLAY0)
-				.size_wh(WidgetDim::Fixed(100.0), WidgetDim::Fixed(20.0))
-		},
-		&theme.body_text,
-		"IP",
-		theme::SUBTEXT0,
-	);
-	ui.add_child(root, ip_input_widget);
+	let add_host = ColorButton {
+		label: "Add",
+		..Default::default()
+	}
+	.build(wk!(), ui, state);
+	ui.add_child(root, add_host);
 
-	let username_input = wk!();
-	let username_input_widget = ui.text_input(
-		username_input,
-		|container| {
-			container
-				.border_width(Vec4::ONE)
-				.border_color(theme::OVERLAY0)
-				.size_wh(WidgetDim::Fixed(100.0), WidgetDim::Fixed(20.0))
-		},
-		&theme.body_text,
-		"Username",
-		theme::SUBTEXT0,
-	);
-	ui.add_child(root, username_input_widget);
+	if add_host.l_clicked() {
+		let ip = ui.get_text_input_content(ip_input_key).unwrap();
+		let port = ui.get_text_input_content(port_input_key).unwrap();
+		if let Ok(ip) = ip.parse()
+			&& let Ok(port) = port.parse()
+		{
+			state.hosts.spawn((
+				HostName(String::from("todo")),
+				ConnectionInfo { ip, port },
+				Enabled,
+			));
+			ui.get_text_input_mut(ip_input_key)
+				.unwrap()
+				.editor
+				.set_text("");
+			ui.get_text_input_mut(port_input_key)
+				.unwrap()
+				.editor
+				.set_text("");
+		}
+	}
 
 	root
 }

@@ -1,5 +1,7 @@
 //! Components and utilities for querying hosts.
 
+use std::net::IpAddr;
+
 /// Marker component for enabled hosts.
 pub struct Enabled;
 
@@ -13,6 +15,6 @@ pub struct Credentials {
 }
 
 pub struct ConnectionInfo {
-	pub ip: String,
+	pub ip: IpAddr,
 	pub port: u16,
 }

@@ -10,9 +10,11 @@ uing = "0.2"
 winit = "0"
 
 [dependencies.crux]
-path = "../../../kampaku/crux"
-#git = "https://codeberg.org/splinteredShadows/kampaku.git"
+# path = "../../../kampaku/crux"
+git = "https://codeberg.org/splinteredShadows/kampaku.git"
+rev = "e281ae42d71b68ae9704773b90fe2d4c864efaa6"
 
 [dependencies.ecs]
-path = "../../../kampaku/ecs"
-#git = "https://codeberg.org/splinteredShadows/kampaku.git"
+# path = "../../../kampaku/ecs"
+git = "https://codeberg.org/splinteredShadows/kampaku.git"
+rev = "e281ae42d71b68ae9704773b90fe2d4c864efaa6"

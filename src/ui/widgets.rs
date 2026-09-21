@@ -41,6 +41,7 @@ impl<'a, T: Eq + Copy> TabBar<'a, T> {
 				gap: 1.0,
 				wrap: false,
 			})
+			.tag("TabBar")
 			.build();
 
 		for (idx, tab) in self.tabs.iter().enumerate() {
@@ -123,13 +124,23 @@ impl<'a> TextInput<'a> {
 	}
 }
 
-#[derive(Default)]
 pub struct ColorButton<'a> {
 	pub label: &'a str,
 	pub width: WidgetDim,
 	pub height: WidgetDim,
 	pub padding: f32,
 	pub anchor: Anchor,
+}
+impl Default for ColorButton<'_> {
+	fn default() -> Self {
+		Self {
+			label: "",
+			width: WidgetDim::hug(),
+			height: WidgetDim::hug(),
+			padding: 5.0,
+			anchor: Anchor::CENTER,
+		}
+	}
 }
 impl<'a> ColorButton<'a> {
 	pub fn build(self, key: WidgetKey, ui: &mut UiContext, state: &State) -> WidgetReaction {
@@ -146,6 +157,7 @@ impl<'a> ColorButton<'a> {
 			.anchorigin(self.anchor)
 			.size_wh(self.width, self.height)
 			.border_radius(Vec4::splat(6.0))
+			.tag("ColorButton")
 			.build();
 		let lbl = ui
 			.text(wk!([key]), self.label, &state.theme.body_text)
@@ -167,10 +179,12 @@ impl<'a> Table<'a> {
 		let root = ui
 			.build_widget(key)
 			.flex_row(10.0)
+			.pad_all(10.0)
 			.size_wh(self.width, self.height)
 			.border_width(Vec4::splat(1.0))
 			.border_radius(Vec4::splat(8.0))
 			.border_color(theme.border_color)
+			.tag("Table")
 			.build();
 
 		let mut columns = Vec::new();
@@ -180,14 +194,16 @@ impl<'a> Table<'a> {
 				.build_widget(wk!([key], idx))
 				.flex_col(5.0)
 				.size_wh(WidgetDim::fill(), WidgetDim::hug())
+				.tag("Column")
 				.build();
 			ui.add_child(root, column);
 			columns.push(column);
 
 			let lbl = ui
-				.text(wk!([key], idx), column_name, &theme.body_text)
+				.text(wk!([key], idx), column_name, &theme.bold_text)
 				.size_wh(WidgetDim::fill(), WidgetDim::hug())
 				.padding(WidgetPadding::trbl(0.0, 0.0, 10.0, 0.0))
+				.tag("Column Title")
 				.build();
 			ui.add_child(column, lbl);
 		}
@@ -224,6 +240,7 @@ impl<'a> Popup<'a> {
 			.hoverable()
 			.clickable()
 			.color(state.theme.shadow_color - 0x7f)
+			.tag("Popup Backdrop")
 			.build();
 		ui.add_child(state.ui_state.window.unwrap(), backdrop);
 
@@ -235,6 +252,7 @@ impl<'a> Popup<'a> {
 			.color(state.theme.popup_background_color)
 			.box_shadow(state.theme.shadow_color, 5.0, Vec2::ZERO)
 			.flex_col_wrap(5.0)
+			.tag("Popup")
 			.build();
 
 		if self.dismissable {
