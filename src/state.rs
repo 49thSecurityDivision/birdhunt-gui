@@ -15,6 +15,7 @@ pub struct State {
 	pub theme: Theme,
 	pub hosts: World<HostsWorldMarker>,
 	pub tasks: Vec<Box<dyn Task>>,
+	pub alerts: Vec<Alert>,
 	pub default_username: String,
 	pub default_password: String,
 }
@@ -47,10 +48,17 @@ impl State {
 			},
 			hosts: World::new(),
 			tasks: Vec::new(),
+			alerts: Vec::new(),
 			default_username: String::new(),
 			default_password: String::new(),
 		}
 	}
+}
+
+#[derive(Debug)]
+pub struct Alert {
+	pub title: String,
+	pub content: String,
 }
 
 pub struct UiState {

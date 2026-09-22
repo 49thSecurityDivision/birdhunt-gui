@@ -14,6 +14,7 @@ pub struct Credentials {
 	pub password: String,
 }
 
+#[derive(Clone)]
 pub struct ConnectionInfo {
 	pub ip: IpAddr,
 	pub port: u16,

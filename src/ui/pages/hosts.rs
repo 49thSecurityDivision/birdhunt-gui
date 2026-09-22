@@ -2,7 +2,7 @@ use {
 	crate::{
 		app::RenderInfo,
 		state::{
-			State, Theme,
+			Alert, State, Theme,
 			host::{ConnectionInfo, Enabled, HostName},
 		},
 		ui::{
@@ -82,18 +82,32 @@ pub fn render(ui: &mut UiContext, _render_info: RenderInfo, state: &mut State) -
 	if add_host.l_clicked() {
 		let ip = ui.get_text_input_content(ip_input_key).unwrap();
 		let port = ui.get_text_input_content(port_input_key).unwrap();
-		if let Ok(ip) = ip.parse()
-			&& let Ok(port) = port.parse()
-		{
-			state.task_add_host(ConnectionInfo { ip, port });
-			ui.get_text_input_mut(ip_input_key)
-				.unwrap()
-				.editor
-				.set_text("");
-			ui.get_text_input_mut(port_input_key)
-				.unwrap()
-				.editor
-				.set_text("");
+		if let Ok(ip) = ip.parse() {
+			if let Ok(port) = port.parse() {
+				state.task_add_host(
+					ConnectionInfo { ip, port },
+					state.default_username.clone(),
+					state.default_password.clone(),
+				);
+				ui.get_text_input_mut(ip_input_key)
+					.unwrap()
+					.editor
+					.set_text("");
+				ui.get_text_input_mut(port_input_key)
+					.unwrap()
+					.editor
+					.set_text("");
+			} else {
+				state.alerts.push(Alert {
+					title: "Invalid Host".to_string(),
+					content: "The port number is invalid".to_string(),
+				});
+			}
+		} else {
+			state.alerts.push(Alert {
+				title: "Invalid Host".to_string(),
+				content: "The IP address is invalid".to_string(),
+			});
 		}
 	}
 

@@ -24,6 +24,12 @@ fn window_key() -> WidgetKey {
 
 /// Render the Birdhunt app.
 pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) -> WidgetReaction {
+	// TODO show alerts to user
+	if !state.alerts.is_empty() {
+		dbg!(&state.alerts);
+		state.alerts.clear();
+	}
+
 	let ui_state = &mut state.ui_state;
 
 	let window = ui

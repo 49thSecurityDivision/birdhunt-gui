@@ -1,9 +1,10 @@
 use {
 	crate::state::{
-		State,
+		Alert, State,
 		host::{ConnectionInfo, Enabled, HostName},
 	},
-	std::{thread::JoinHandle, time::Duration},
+	ssh2::Session,
+	std::{net::TcpStream, thread::JoinHandle, time::Duration},
 };
 
 /// Tasks are things the app spawns to run in the background, since they could
@@ -43,17 +44,28 @@ impl State {
 
 fn handle_task(state: &mut State, task: CompletedTask) {
 	match task {
-		CompletedTask::AddHost(result) => match result {
+		CompletedTask::AddHost((conn_info, result)) => match result {
 			Ok(conn_info) => {
 				state
 					.hosts
 					.spawn((HostName(String::from("todo")), conn_info, Enabled));
 			}
-			Err(err) => match err {
-				AddHostError::ConnectionFailed => {
-					todo!("show error to user")
-				}
-			},
+			Err(err) => {
+				let alert_body = match err {
+					AddHostError::ConnectionFailed(err) => {
+						format!("Failed to connect to host: {err}")
+					}
+					AddHostError::SshError(err) => {
+						format!("SSH had an error: {err}")
+					}
+					AddHostError::AuthenticationFailed => "Invalid credentials".to_string(),
+				};
+
+				state.alerts.push(Alert {
+					title: format!("Failed to add host {}", conn_info.ip),
+					content: alert_body,
+				})
+			}
 		},
 	}
 }
@@ -76,7 +88,7 @@ macro_rules! tasks {
 	};
 }
 tasks! {
-	AddHost(Result<ConnectionInfo, AddHostError>)
+	AddHost((ConnectionInfo, Result<ConnectionInfo, AddHostError>))
 }
 
 //
@@ -84,14 +96,46 @@ tasks! {
 //
 
 pub enum AddHostError {
-	ConnectionFailed,
+	ConnectionFailed(std::io::Error),
+	SshError(ssh2::Error),
+	AuthenticationFailed,
+}
+
+struct PasswordKip(String);
+impl ssh2::KeyboardInteractivePrompt for PasswordKip {
+	fn prompt<'a>(
+		&mut self,
+		_username: &str,
+		_instructions: &str,
+		_prompts: &[ssh2::Prompt<'a>],
+	) -> Vec<String> {
+		vec![self.0.clone()]
+	}
 }
 
 impl State {
-	pub fn task_add_host(&mut self, conn_info: ConnectionInfo) {
-		self.spawn(move || {
-			std::thread::sleep(Duration::from_secs(5));
+	pub fn task_add_host(&mut self, conn_info: ConnectionInfo, username: String, password: String) {
+		let conn_info2 = conn_info.clone();
+		let conn = move || {
+			let conn = TcpStream::connect((conn_info.ip, conn_info.port))
+				.map_err(AddHostError::ConnectionFailed)?;
+			let mut session = Session::new().map_err(AddHostError::SshError)?;
+
+			session.set_tcp_stream(conn);
+			session.handshake().map_err(AddHostError::SshError)?;
+
+			let password_auth = session.userauth_password(&username, &password);
+			if password_auth.is_err() {
+				let keyboard_interactive_auth =
+					session.userauth_keyboard_interactive(&username, &mut PasswordKip(password));
+				if keyboard_interactive_auth.is_err() {
+					return Err(AddHostError::AuthenticationFailed);
+				}
+			}
+
 			Ok(conn_info)
-		})
+		};
+
+		self.spawn(move || (conn_info2, conn()))
 	}
 }
