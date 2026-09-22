@@ -1,10 +1,11 @@
 use {
-	crate::ui::theme,
+	crate::{state::task::Task, ui::theme},
 	ecs::World,
 	uing::{TextProps, WidgetId, parley::FontWeight},
 };
 
 pub mod host;
+pub mod task;
 
 pub struct HostsWorldMarker;
 
@@ -13,6 +14,7 @@ pub struct State {
 	pub ui_state: UiState,
 	pub theme: Theme,
 	pub hosts: World<HostsWorldMarker>,
+	pub tasks: Vec<Box<dyn Task>>,
 	pub default_username: String,
 	pub default_password: String,
 }
@@ -44,6 +46,7 @@ impl State {
 				accent: theme::LAVENDER,
 			},
 			hosts: World::new(),
+			tasks: Vec::new(),
 			default_username: String::new(),
 			default_password: String::new(),
 		}
