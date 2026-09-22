@@ -1,6 +1,9 @@
 use {
-	crate::state::{State, host::ConnectionInfo},
-	std::thread::JoinHandle,
+	crate::state::{
+		State,
+		host::{ConnectionInfo, Enabled, HostName},
+	},
+	std::{thread::JoinHandle, time::Duration},
 };
 
 /// Tasks are things the app spawns to run in the background, since they could
@@ -26,13 +29,25 @@ impl State {
 			}
 		}
 	}
+
+	pub fn spawn<F, R>(&mut self, f: F)
+	where
+		F: FnOnce() -> R + Send + 'static,
+		R: Send + 'static,
+		JoinHandle<R>: Task,
+	{
+		let task = std::thread::spawn(f);
+		self.tasks.push(Box::new(task))
+	}
 }
 
 fn handle_task(state: &mut State, task: CompletedTask) {
 	match task {
 		CompletedTask::AddHost(result) => match result {
 			Ok(conn_info) => {
-				todo!("Get OS and SSH session")
+				state
+					.hosts
+					.spawn((HostName(String::from("todo")), conn_info, Enabled));
 			}
 			Err(err) => match err {
 				AddHostError::ConnectionFailed => {
@@ -64,6 +79,19 @@ tasks! {
 	AddHost(Result<ConnectionInfo, AddHostError>)
 }
 
+//
+// AddHost task
+//
+
 pub enum AddHostError {
 	ConnectionFailed,
+}
+
+impl State {
+	pub fn task_add_host(&mut self, conn_info: ConnectionInfo) {
+		self.spawn(move || {
+			std::thread::sleep(Duration::from_secs(5));
+			Ok(conn_info)
+		})
+	}
 }

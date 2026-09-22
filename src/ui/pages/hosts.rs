@@ -85,11 +85,7 @@ pub fn render(ui: &mut UiContext, _render_info: RenderInfo, state: &mut State) -
 		if let Ok(ip) = ip.parse()
 			&& let Ok(port) = port.parse()
 		{
-			state.hosts.spawn((
-				HostName(String::from("todo")),
-				ConnectionInfo { ip, port },
-				Enabled,
-			));
+			state.task_add_host(ConnectionInfo { ip, port });
 			ui.get_text_input_mut(ip_input_key)
 				.unwrap()
 				.editor

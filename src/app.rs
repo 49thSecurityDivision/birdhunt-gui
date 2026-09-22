@@ -136,6 +136,8 @@ impl UingApp<KeyEvent> for App {
 	fn on_redraw(&mut self, renderer: &mut Renderer, viewport: Vec2, scale_factor: f32) {
 		let App { ui_ctx, state } = self;
 
+		state.check_tasks();
+
 		ui_ctx.start_frame();
 		ui_ctx.resize(viewport);
 

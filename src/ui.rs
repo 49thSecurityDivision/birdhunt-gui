@@ -24,8 +24,6 @@ fn window_key() -> WidgetKey {
 
 /// Render the Birdhunt app.
 pub fn render(ui: &mut UiContext, render_info: RenderInfo, state: &mut State) -> WidgetReaction {
-	state.check_tasks();
-
 	let ui_state = &mut state.ui_state;
 
 	let window = ui
