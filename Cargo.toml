@@ -4,8 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-dioxus-devtools = "0.7.10"
+dioxus-devtools = "0.7"
 ssh2 = "0.9"
+tracing = "0.1.44"
+tracing-subscriber = "0.3.23"
 uing = "0.2"
 winit = "0"
 
