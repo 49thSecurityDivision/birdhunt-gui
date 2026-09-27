@@ -6,6 +6,10 @@ RUN apt update
 RUN apt install -y unminimize
 RUN yes | unminimize
 
-
 # utilities
-RUN apt install -y iproute2 nmap
+RUN apt install -y iputils-ping iproute2 nmap
+
+# SSH
+RUN echo ubuntu | passwd ubuntu -s
+RUN apt install -y openssh-server
+CMD /usr/sbin/sshd -D
